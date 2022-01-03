@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     alexaskills = {
-      version = "0.1"
-      source  = "scg.com/va/alexaskills"
+      version = "0.1-beta0"
+      source  = "thomas-b-jackson/va/alexaskills"
     }
 
     aws = {}
@@ -48,7 +48,7 @@ resource "alexaskills_skill_resource" "hello_world" {
       custom {
         endpoint {
           # TODO: generalize. currently using the lambda for the QnABot stack in the Logic AWS account
-          uri = "arn:aws:lambda:us-west-2:580753938011:function:serverlessrepo-alexa-skil-alexaskillskitnodejsfact-pymFhOcUAodv"
+          uri = "arn:aws:lambda:us-west-2:111365482541:function:scg-shcva-dev-wus2-lambda-fulfillment"
         }
         interfaces = []
       }

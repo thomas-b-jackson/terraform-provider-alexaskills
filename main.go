@@ -38,7 +38,7 @@ func main() {
 
 	if debugMode {
 		// TODO: update this string with the full name of your provider as used in your configs
-		err := plugin.Debug(context.Background(), "scg.com/va/alexaskills", opts)
+		err := plugin.Debug(context.Background(), "thomas-b-jackson/va/alexaskills", opts)
 		if err != nil {
 			log.Fatal(err.Error())
 		}

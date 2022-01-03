@@ -2,11 +2,14 @@
 *.exe
 .DS_Store
 example.tf
+.terraform.lock.hcl
 terraform.tfplan
 terraform.tfstate
+bot.zip
 bin/
 dist/
 modules-dev/
+artifacts/
 /pkg/
 website/.vagrant
 website/.bundle
@@ -24,6 +27,7 @@ website/node_modules
 *.iml
 *.test
 *.iml
+.ask/
 
 website/vendor
 
