@@ -1,13 +1,14 @@
 terraform {
   required_providers {
     alexaskills = {
-      version = "0.1-beta0"
-      source  = "thomas-b-jackson/va/alexaskills"
+      source = "thomas-b-jackson/alexaskills"
+      version = "0.1.0-beta0"
     }
   }
 }
 
 provider "alexaskills" {
+  # Configuration options
 }
 
 resource "alexaskills_skill_resource" "hello_world" {
