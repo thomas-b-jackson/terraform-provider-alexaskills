@@ -64,6 +64,7 @@ Release Steps:
 * Set GPG_FINGERPRINT to fingerprint
 * Tag your release commit to match version in GNUmakefile, e.g.:
   `git tag 0.2.0`
+  *NOTE:* version formatting must comply with semver.org
 * Build, sign, and upload your release with:
   `goreleaser release --rm-dist`
 * Re-run terraform init against the release in the registry (to make sure it has sync'd from github)
