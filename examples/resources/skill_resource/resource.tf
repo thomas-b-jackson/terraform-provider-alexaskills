@@ -2,7 +2,7 @@ terraform {
   required_providers {
     alexaskills = {
       source = "thomas-b-jackson/alexaskills"
-      version = "0.1.0-beta0"
+      version = "0.1.0-beta1"
     }
   }
 }
