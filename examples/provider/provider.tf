@@ -8,4 +8,6 @@ terraform {
 }
 
 provider "alexaskills" {
+  token = ""
+  vendorid = ""
 }

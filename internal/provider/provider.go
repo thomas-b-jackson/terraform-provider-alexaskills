@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/scg/va/ask_client"
+	"github.com/scg/va/smapi_client"
 )
 
 func init() {
@@ -47,7 +47,11 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 	return func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
 
 		var diags diag.Diagnostics
-		askClient, err := ask_client.NewClient()
+
+		token := d.Get("token").(string)
+		vendorId := d.Get("vendor-id").(string)
+
+		smapiClient, err := smapi_client.NewClient(token, vendorId)
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,

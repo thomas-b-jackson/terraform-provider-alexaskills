@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/scg/va/ask_client"
+	"github.com/scg/va/smapi_client"
 )
 
 func resourceSkills() *schema.Resource {
@@ -60,9 +60,9 @@ func resourceSkillsRead(ctx context.Context, d *schema.ResourceData, meta interf
 
 	skillID := d.Id()
 
-	askClient := meta.(*ask_client.AskClient)
+	smapiClient := meta.(*smapi_client.SMAPIClient)
 
-	skillManifest, err := askClient.GetSkillManifest(skillID)
+	skillManifest, err := smapiClient.GetSkillManifest(skillID)
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -98,14 +98,14 @@ func resourceSkillsUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 
 func resourceSkillsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	askClient := meta.(*ask_client.AskClient)
+	smapiClient := meta.(*ask_client.AskClient)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
 	skillID := d.Id()
 
-	err := askClient.DeleteSkill(skillID)
+	err := smapiClient.DeleteSkill(skillID)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,

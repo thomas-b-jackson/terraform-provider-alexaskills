@@ -3,10 +3,10 @@ HOSTNAME=scg.com
 NAMESPACE=va
 NAME=alexaskills
 BINARY=terraform-provider-${NAME}
-VERSION=0.1
+VERSION=0.2
 OS_ARCH=linux_amd64
 
-default: install
+	 default: install
 
 build:
 	go build -o ${BINARY}
