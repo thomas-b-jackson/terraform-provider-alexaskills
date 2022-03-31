@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/scg/va/ask_client"
+	"github.com/scg/va/smapi_client"
 )
 
 func dataSourceSkills() *schema.Resource {
@@ -38,9 +38,9 @@ func dataSourceSkillsRead(ctx context.Context, d *schema.ResourceData, meta inte
 
 	skillID := d.Get("id").(string)
 
-	askClient := meta.(*ask_client.AskClient)
+	smapiClient := meta.(*smapi_client.SMAPIClient)
 
-	skillManifest, err := askClient.GetSkillManifest(skillID)
+	skillManifest, err := smapiClient.GetSkillManifest(skillID)
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -181,7 +181,7 @@ var lexApiResource = &schema.Resource{
 	},
 }
 
-func flattenSkillManifest(skillManifest ask_client.SkillManifest) (flattened []map[string]interface{}) {
+func flattenSkillManifest(skillManifest smapi_client.SkillManifest) (flattened []map[string]interface{}) {
 
 	flattened = []map[string]interface{}{
 		{
@@ -194,7 +194,7 @@ func flattenSkillManifest(skillManifest ask_client.SkillManifest) (flattened []m
 	return
 }
 
-func flattenPublishingInformation(publishingInformation ask_client.PublishingInformation) (flattened []map[string]interface{}) {
+func flattenPublishingInformation(publishingInformation smapi_client.PublishingInformation) (flattened []map[string]interface{}) {
 
 	flattened = []map[string]interface{}{
 		{
@@ -209,7 +209,7 @@ func flattenPublishingInformation(publishingInformation ask_client.PublishingInf
 	return
 }
 
-func flattenLocales(locales ask_client.Locales) (flattened []map[string]interface{}) {
+func flattenLocales(locales smapi_client.Locales) (flattened []map[string]interface{}) {
 
 	flattened = []map[string]interface{}{{
 		"en_us": []map[string]interface{}{{
@@ -232,7 +232,7 @@ func flattenExamplePhrases(phrasesIn []string) (phrases []interface{}) {
 	return
 }
 
-func flattenApis(apis ask_client.Apis) (flattened []map[string]interface{}) {
+func flattenApis(apis smapi_client.Apis) (flattened []map[string]interface{}) {
 
 	flattened = []map[string]interface{}{{
 		"custom": []map[string]interface{}{{
@@ -246,11 +246,11 @@ func flattenApis(apis ask_client.Apis) (flattened []map[string]interface{}) {
 	return
 }
 
-func ExpandSkillManifest(in []interface{}) *ask_client.SkillManifest {
+func ExpandSkillManifest(in []interface{}) *smapi_client.SkillManifest {
 
 	m := in[0].(map[string]interface{})
 
-	manifest := ask_client.SkillManifest{}
+	manifest := smapi_client.SkillManifest{}
 
 	if v, ok := m["publishing_information"].([]interface{}); ok {
 		manifest.PublishingInformation = *ExpandPublishingInformation(v)
@@ -267,9 +267,9 @@ func ExpandSkillManifest(in []interface{}) *ask_client.SkillManifest {
 	return &manifest
 }
 
-func ExpandPublishingInformation(in []interface{}) *ask_client.PublishingInformation {
+func ExpandPublishingInformation(in []interface{}) *smapi_client.PublishingInformation {
 
-	pubInfo := &ask_client.PublishingInformation{}
+	pubInfo := &smapi_client.PublishingInformation{}
 
 	m := in[0].(map[string]interface{})
 
@@ -292,9 +292,9 @@ func ExpandPublishingInformation(in []interface{}) *ask_client.PublishingInforma
 	return pubInfo
 }
 
-func ExpandApis(in []interface{}) *ask_client.Apis {
+func ExpandApis(in []interface{}) *smapi_client.Apis {
 
-	apis := &ask_client.Apis{}
+	apis := &smapi_client.Apis{}
 
 	m := in[0].(map[string]interface{})
 
@@ -305,9 +305,9 @@ func ExpandApis(in []interface{}) *ask_client.Apis {
 	return apis
 }
 
-func expandCustomApi(in []interface{}) *ask_client.CustomApi {
+func expandCustomApi(in []interface{}) *smapi_client.CustomApi {
 
-	customApi := &ask_client.CustomApi{}
+	customApi := &smapi_client.CustomApi{}
 
 	m := in[0].(map[string]interface{})
 
@@ -318,9 +318,9 @@ func expandCustomApi(in []interface{}) *ask_client.CustomApi {
 	return customApi
 }
 
-func expandEndpoint(in []interface{}) *ask_client.Endpoint {
+func expandEndpoint(in []interface{}) *smapi_client.Endpoint {
 
-	endpoint := &ask_client.Endpoint{}
+	endpoint := &smapi_client.Endpoint{}
 
 	m := in[0].(map[string]interface{})
 
@@ -331,9 +331,9 @@ func expandEndpoint(in []interface{}) *ask_client.Endpoint {
 	return endpoint
 }
 
-func expandLocales(in []interface{}) *ask_client.Locales {
+func expandLocales(in []interface{}) *smapi_client.Locales {
 
-	locales := &ask_client.Locales{}
+	locales := &smapi_client.Locales{}
 
 	m := in[0].(map[string]interface{})
 
@@ -345,9 +345,9 @@ func expandLocales(in []interface{}) *ask_client.Locales {
 	return locales
 }
 
-func explandEnUSLocal(in []interface{}) *ask_client.EnglishUSLocal {
+func explandEnUSLocal(in []interface{}) *smapi_client.EnglishUSLocal {
 
-	enUS := &ask_client.EnglishUSLocal{}
+	enUS := &smapi_client.EnglishUSLocal{}
 
 	m := in[0].(map[string]interface{})
 

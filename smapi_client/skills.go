@@ -2,13 +2,9 @@ package smapi_client
 
 import (
 	"encoding/json"
-	"net/http"
 	"fmt"
 	"log"
 )
-
-const baseURL = "http://api.amazonalexa.com"
-const token = "Atza|IwEBIL9MIQsfiawXiC4kreIgWmHjSNOcfWFEEbkOu2esPe_E1-O20zhJxRGGelkiavzyODLDaINmqhRei_lzUDZiQW6BtuRxeYCHWz4d57kFeZWrMyfZ0jUeha_oY649qGz79n9XQUtx8v4_uGZDPEJPB-V2vv8-_d4C_8CVhMuFE9D7dg7Lrf-Jua84_JqKJF14TKMlRk3WxzkBL0tiARKkXMT3wrPLLMQjCByWLkHrkIkKcrb0KoRy5Mwz3TFfqq1yKThqESE_2i5SuddsZyE5scIkR52fZ1OtWLW_3PbHyn9dIjzWui7gQWC6cYck1PRf7bvQPEMmcWIC0UKe0BDUTkmX-nuL0fwpKs84OSoTTv3ISmJ-tjJomCiDLvEdI816tMmrhGonvukmKxGn7Fw-pYLr4z94ZeMJ_bEPPuZfS1zFq4jTteznRCjK1D1g00dOM5iEsx9uRLViGOg607y1l1xD1eefBY_XZawPnrZbLc69jSqv2juaDhR2siBU37NUM1Poa_NmqGfYltgu0ixpxj9_gQCY8hRXEt55eocFmNeNavwrQmk7Mg8qKSwjvOZhtnQKPMzxqD8gimIVqDHegjFQr1bvabczJYrz7ztBXpVHq-Vg91d9ANGMXeQY68OPiuTAl_MBEmBkri-HJjqudxh0"
 
 type VendorSkills struct {
 	Skills []struct {
@@ -76,18 +72,15 @@ type SkillManifestWrapper struct {
 	Manifest SkillManifest `json:"manifest"`
 }
 
+func (c *SMAPIClient) GetSkill(skillId string) (VendorSkills, error) {
 
-func (c *SMAPIClient) GetSkill(token string, vendorId string, skillId string) (VendorSkills, error) {
-
-	body, err := c.Exec(
-		token,
-		"GET",
-		baseURL + "/v1/skills?vendorId=" + vendorId + "&skillId=" + skillid)
+	body, err := c.Get(
+		"/v1/skills?vendorId=" + c.vendorId + "&skillId=" + skillId)
 
 	var skills VendorSkills
 
 	if err != nil {
-		log.Printf("[DEBUG] skills list raw output:\n%s\n", askOutput)
+		log.Printf("[DEBUG] skills list raw output:\n%s\n", body)
 		return skills, err
 	}
 
@@ -96,13 +89,10 @@ func (c *SMAPIClient) GetSkill(token string, vendorId string, skillId string) (V
 	return skills, err
 }
 
+func (c SMAPIClient) GetSkillManifest(skillId string) (SkillManifest, error) {
 
-func (c SMAPIClient) GetSkillManifest(token string, skillId string) (SkillManifest, error) {
-
-	body, err := c.Exec(
-		token,
-		"GET",
-		baseURL + "v1/skills/" + skillId + "/stages/development/manifest")
+	body, err := c.Get(
+		"/v1/skills/" + skillId + "/stages/development/manifest")
 
 	if err != nil {
 		log.Printf("[DEBUG] Error getting skill manifest for :%s\n",
@@ -117,8 +107,7 @@ func (c SMAPIClient) GetSkillManifest(token string, skillId string) (SkillManife
 	return wrappedSkill.Manifest, err
 }
 
-
-func (c *SMAPIClient) CreateSkill(token string, skillManifest SkillManifest) (string, error) {
+func (c *SMAPIClient) CreateSkill(skillManifest SkillManifest) (string, error) {
 
 	manifestComplete := SkillManifestWrapper{skillManifest}
 
@@ -133,11 +122,9 @@ func (c *SMAPIClient) CreateSkill(token string, skillManifest SkillManifest) (st
 		return skillId, err
 	}
 
-	body, err := c.Exec(
-		token,
-		"POST",
-		baseURL + "v1/skills",
-		string(manifestBytes))
+	body, err := c.Post(
+		"/v1/skills",
+		manifestBytes)
 
 	if err != nil {
 		log.Printf("[DEBUG] skills create raw output:\n%s\n", body)
@@ -164,13 +151,10 @@ func (c *SMAPIClient) CreateSkill(token string, skillManifest SkillManifest) (st
 	return skillId, err
 }
 
+func (c *SMAPIClient) DeleteSkill(skillId string) error {
 
-func (c *SMAPIClient) DeleteSkill(token string, skillId string) error {
-
-	body, err := c.Exec(
-		token,
-		"DELETE",
-		baseURL + "v1/skills/" + skillid + "/",)
+	body, err := c.Delete(
+		"/v1/skills/" + skillId)
 
 	if err != nil {
 		log.Printf("[DEBUG] skills delete raw output:\n%s\n", body)

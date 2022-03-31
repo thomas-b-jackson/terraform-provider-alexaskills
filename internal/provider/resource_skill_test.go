@@ -11,8 +11,8 @@ func TestAccResourceSkills(t *testing.T) {
 	// t.Skip("resource not yet implemented, remove this once you add your own code")
 
 	resource.UnitTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: providerFactories,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: providerFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceSkills,
@@ -26,6 +26,12 @@ func TestAccResourceSkills(t *testing.T) {
 }
 
 const testAccResourceSkills = `
+
+provider "alexaskills" {
+  token = "foo"
+	vendor_id = "bar"
+}
+
 resource "alexaskills_skill_resource" "foo" {
 	manifest {
 		manifest_version = "1.0"

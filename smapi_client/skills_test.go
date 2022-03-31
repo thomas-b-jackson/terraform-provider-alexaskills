@@ -7,7 +7,7 @@ import (
 
 func TestGetSkill(t *testing.T) {
 
-	f := func(name string, arg ...string) (string, error) {
+	f := func(token string, verb string, url string, payload []byte) (string, error) {
 
 		var vendorSkills = `{"Skills":
 		[{
@@ -25,7 +25,7 @@ func TestGetSkill(t *testing.T) {
 		return vendorSkills, nil
 	}
 
-	smapiClient, _ := NewSMAPITestClient(f)
+	smapiClient, _ := NewTestClient(f)
 
 	skills, err := smapiClient.GetSkill("amzn1.ask.skill.70946374-9b01-4e18-b5e0-e0ec292a0f53")
 
@@ -44,7 +44,7 @@ func TestGetSkill(t *testing.T) {
 
 func TestCreateSkill(t *testing.T) {
 
-	f := func(name string, arg ...string) (string, error) {
+	f := func(token string, verb string, url string, payload []byte) (string, error) {
 
 		var createSkillResponse = `{
 			"body": {
@@ -70,7 +70,7 @@ func TestCreateSkill(t *testing.T) {
 		return createSkillResponse, nil
 	}
 
-	smapiClient, _ := NewSMAPITestClient(f)
+	smapiClient, _ := NewTestClient(f)
 
 	skillManifest := SkillManifest{
 		PublishingInformation: PublishingInformation{

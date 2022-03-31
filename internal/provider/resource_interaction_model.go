@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/scg/va/ask_client"
+	"github.com/scg/va/smapi_client"
 )
 
 func resourceInteractionModel() *schema.Resource {
@@ -31,9 +31,9 @@ func resourceInteractionModelCreate(ctx context.Context, d *schema.ResourceData,
 
 	skillId := d.Get("skill_id").(string)
 
-	askClient := meta.(*ask_client.AskClient)
+	smapiClient := meta.(*smapi_client.SMAPIClient)
 
-	err := askClient.UpdateInteractionModel(skillId, *interactionModel)
+	err := smapiClient.UpdateInteractionModel(skillId, *interactionModel)
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -69,9 +69,9 @@ func resourceInteractionModelDelete(ctx context.Context, d *schema.ResourceData,
 	return diags
 }
 
-func ExpandInteractionModel(in []interface{}) *ask_client.InteractionModel {
+func ExpandInteractionModel(in []interface{}) *smapi_client.InteractionModel {
 
-	model := &ask_client.InteractionModel{}
+	model := &smapi_client.InteractionModel{}
 
 	m := in[0].(map[string]interface{})
 
@@ -82,9 +82,9 @@ func ExpandInteractionModel(in []interface{}) *ask_client.InteractionModel {
 	return model
 }
 
-func expandLanguageModel(in []interface{}) *ask_client.LanguageModel {
+func expandLanguageModel(in []interface{}) *smapi_client.LanguageModel {
 
-	languageModel := &ask_client.LanguageModel{}
+	languageModel := &smapi_client.LanguageModel{}
 
 	m := in[0].(map[string]interface{})
 
@@ -105,9 +105,9 @@ func expandLanguageModel(in []interface{}) *ask_client.LanguageModel {
 	return languageModel
 }
 
-func expandTypes(in []interface{}) *[]ask_client.Types {
+func expandTypes(in []interface{}) *[]smapi_client.Types {
 
-	types := make([]ask_client.Types, len(in))
+	types := make([]smapi_client.Types, len(in))
 
 	for idx, this_in := range in {
 		m := this_in.(map[string]interface{})
@@ -126,14 +126,14 @@ func expandTypes(in []interface{}) *[]ask_client.Types {
 	return &types
 }
 
-func expandTypeValues(in []interface{}) *[]ask_client.TypeValues {
+func expandTypeValues(in []interface{}) *[]smapi_client.TypeValues {
 
-	typeValues := make([]ask_client.TypeValues, len(in))
+	typeValues := make([]smapi_client.TypeValues, len(in))
 
 	for idx, this_in := range in {
 
-		typeValues[idx] = ask_client.TypeValues{
-			Name: ask_client.Value{
+		typeValues[idx] = smapi_client.TypeValues{
+			Name: smapi_client.Value{
 				Value: this_in.(string),
 			},
 		}
@@ -142,9 +142,9 @@ func expandTypeValues(in []interface{}) *[]ask_client.TypeValues {
 	return &typeValues
 }
 
-func expandIntents(in []interface{}) *[]ask_client.Intents {
+func expandIntents(in []interface{}) *[]smapi_client.Intents {
 
-	intents := make([]ask_client.Intents, len(in))
+	intents := make([]smapi_client.Intents, len(in))
 
 	for idx, this_in := range in {
 		m := this_in.(map[string]interface{})
@@ -175,9 +175,9 @@ func expandIntents(in []interface{}) *[]ask_client.Intents {
 	return &intents
 }
 
-func expandSlots(in []interface{}) *[]ask_client.Slot {
+func expandSlots(in []interface{}) *[]smapi_client.Slot {
 
-	slots := make([]ask_client.Slot, len(in))
+	slots := make([]smapi_client.Slot, len(in))
 
 	for idx, this_in := range in {
 		m := this_in.(map[string]interface{})

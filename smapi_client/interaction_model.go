@@ -54,13 +54,10 @@ type UpdateModelResponse struct {
 // wait up to this many seconds for a model build to complete
 const ModelBuildTimeoutSec = 30
 
+func (c *SMAPIClient) GetInteractionModel(skillId string) (InteractionModelObj, error) {
 
-func (c *SMAPIClient) GetInteractionModel(token string, skillId string) (InteractionModelObj, error) {
-
-	body, err := c.Exec(
-		token,
-		"GET",
-		baseURL + "v1/skills/" + skillId + "/stages/development/interactionModel/locales/en-US")
+	body, err := c.Get(
+		"/v1/skills/" + skillId + "/stages/development/interactionModel/locales/en-US")
 
 	var model InteractionModelObj
 
@@ -74,8 +71,7 @@ func (c *SMAPIClient) GetInteractionModel(token string, skillId string) (Interac
 	return model, err
 }
 
-
-func (c *SMAPIClient) UpdateInteractionModel(token string, skillId string, model InteractionModel) error {
+func (c *SMAPIClient) UpdateInteractionModel(skillId string, model InteractionModel) error {
 
 	// include the outer tag in the model
 	interactionModelObj := InteractionModelObj{model}
@@ -88,10 +84,8 @@ func (c *SMAPIClient) UpdateInteractionModel(token string, skillId string, model
 		return err
 	}
 
-	body, err := c.Exec(
-		token,
-		"PUT",
-		baseURL + "v1/skills/" + skillId + "/stages/development/interactionModel/locales/en-US",
+	body, err := c.Put(
+		"/v1/skills/"+skillId+"/stages/development/interactionModel/locales/en-US",
 		modelBytes)
 
 	if err != nil {

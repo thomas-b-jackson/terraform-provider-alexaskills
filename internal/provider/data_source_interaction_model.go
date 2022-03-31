@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/scg/va/ask_client"
+	"github.com/scg/va/smapi_client"
 )
 
 func dataSourceInteractionModel() *schema.Resource {
@@ -112,9 +112,9 @@ func dataSourceInteractionModelRead(ctx context.Context, d *schema.ResourceData,
 
 	skillID := d.Get("skill_id").(string)
 
-	askClient := meta.(*ask_client.AskClient)
+	smapiClient := meta.(*smapi_client.SMAPIClient)
 
-	model, err := askClient.GetInteractionModel(skillID)
+	model, err := smapiClient.GetInteractionModel(skillID)
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -141,7 +141,7 @@ func dataSourceInteractionModelRead(ctx context.Context, d *schema.ResourceData,
 	return diags
 }
 
-func flattenInteractionModels(model ask_client.InteractionModelObj) (flattened []map[string][]map[string]interface{}) {
+func flattenInteractionModels(model smapi_client.InteractionModelObj) (flattened []map[string][]map[string]interface{}) {
 
 	flattened = []map[string][]map[string]interface{}{
 		{
@@ -156,7 +156,7 @@ func flattenInteractionModels(model ask_client.InteractionModelObj) (flattened [
 	return
 }
 
-func flattenTypes(modelTypes []ask_client.Types) (flattened []map[string]interface{}) {
+func flattenTypes(modelTypes []smapi_client.Types) (flattened []map[string]interface{}) {
 
 	if len(modelTypes) > 0 {
 		log.Printf("[DEBUG] skills model:\n%+v\n", modelTypes)
@@ -172,7 +172,7 @@ func flattenTypes(modelTypes []ask_client.Types) (flattened []map[string]interfa
 	return
 }
 
-func flattenTypeValues(type_values []ask_client.TypeValues) []string {
+func flattenTypeValues(type_values []smapi_client.TypeValues) []string {
 
 	typeValues := make([]string, len(type_values))
 
@@ -183,7 +183,7 @@ func flattenTypeValues(type_values []ask_client.TypeValues) []string {
 	return typeValues
 }
 
-func flattenIntents(intents []ask_client.Intents) []map[string]interface{} {
+func flattenIntents(intents []smapi_client.Intents) []map[string]interface{} {
 
 	intents_slice := make([]map[string]interface{}, len(intents))
 
@@ -206,7 +206,7 @@ func flattenIntents(intents []ask_client.Intents) []map[string]interface{} {
 	return intents_slice
 }
 
-func flattenSlots(slots []ask_client.Slot) []map[string]interface{} {
+func flattenSlots(slots []smapi_client.Slot) []map[string]interface{} {
 
 	slots_slice := make([]map[string]interface{}, len(slots))
 

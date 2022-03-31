@@ -36,9 +36,9 @@ func resourceSkillsCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	manifest := ExpandSkillManifest(d.Get("manifest").([]interface{}))
 
-	askClient := meta.(*ask_client.AskClient)
+	smapiClient := meta.(*smapi_client.SMAPIClient)
 
-	skillId, err := askClient.CreateSkill(*manifest)
+	skillId, err := smapiClient.CreateSkill(*manifest)
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -98,7 +98,7 @@ func resourceSkillsUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 
 func resourceSkillsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	smapiClient := meta.(*ask_client.AskClient)
+	smapiClient := meta.(*smapi_client.SMAPIClient)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics

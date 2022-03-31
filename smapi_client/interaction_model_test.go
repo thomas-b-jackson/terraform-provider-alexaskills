@@ -7,7 +7,7 @@ import (
 
 func TestGetInteractionModel(t *testing.T) {
 
-	f := func(name string, arg ...string) (string, error) {
+	f := func(token string, verb string, url string, payload []byte) (string, error) {
 
 		var interactionModel = `{
 			"interactionModel": {
@@ -91,7 +91,7 @@ func TestGetInteractionModel(t *testing.T) {
 
 func TestCreateInteractionModel(t *testing.T) {
 
-	happyPath := func(name string, arg ...string) (string, error) {
+	happyPath := func(token string, verb string, url string, payload []byte) (string, error) {
 
 		var createSkillResponse = `{
 			"body": {

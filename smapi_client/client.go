@@ -1,21 +1,28 @@
 package smapi_client
 
 import (
-	"context"
-	"os/exec"
-	"time"
 	"bytes"
-	"fmt"
+	"io"
+	"log"
 	"net/http"
-	"io/ioutil"
 )
 
-type Executer func(token string, verb string, url string, payload ...string) (string, error)
+type Doer func(token string, verb string, url string, payload []byte) (string, error)
 
-func osExec(token string, verb string, url string, payload ...string) (body, error) {
+func do(token string, verb string, url string, payload []byte) (string, error) {
+
+	const baseUrl = "http://api.amazonalexa.com/"
+
 	hc := &http.Client{}
 
-	request, err := http.NewRequest(verb, url, bytes.NewBuffer(payload))
+	var payloadReader io.Reader
+
+	if payload != nil {
+		payloadReader = bytes.NewBuffer(payload)
+	}
+
+	request, err := http.NewRequest(verb, baseUrl+url, payloadReader)
+
 	if err != nil {
 		log.Printf("[DEBUG] Error building %s for %s\n", verb, url)
 	}
@@ -26,7 +33,7 @@ func osExec(token string, verb string, url string, payload ...string) (body, err
 
 	response, err := hc.Do(request)
 	if err != nil {
-		log.Printf("[DEBUG] Error doing %s for %s\n", verb, url )
+		log.Printf("[DEBUG] Error doing %s for %s\n", verb, url)
 		log.Fatal(err)
 	}
 
@@ -36,24 +43,35 @@ func osExec(token string, verb string, url string, payload ...string) (body, err
 	if err != nil {
 		log.Fatal(err)
 	}
-	body = string(bytes)
-	fmt.Println(string(body))
+	body := string(bytes)
+	// fmt.Println(body)
 
 	return body, err
 }
 
-
 type SMAPIClient struct {
-	exec Executer
-	token string
+	do       Doer
+	token    string
 	vendorId string
 }
 
 func NewClient(token string, vendorId string) (*SMAPIClient, error) {
-	c := SMAPIClient{osExec, token, vendorId}
+	c := SMAPIClient{do, token, vendorId}
 	return &c, nil
 }
 
-func (c *SMAPIClient) Exec(token string, arg ...string) (string, error) {
-	return c.exec(token, arg...)
+func (c *SMAPIClient) Get(url string) (string, error) {
+	return c.do(c.token, "GET", url, nil)
+}
+
+func (c *SMAPIClient) Post(url string, payload []byte) (string, error) {
+	return c.do(c.token, "POST", url, payload)
+}
+
+func (c *SMAPIClient) Put(url string, payload []byte) (string, error) {
+	return c.do(c.token, "PUT", url, payload)
+}
+
+func (c *SMAPIClient) Delete(url string) (string, error) {
+	return c.do(c.token, "DELETE", url, nil)
 }

@@ -10,8 +10,8 @@ func TestAccInteractionModel(t *testing.T) {
 	// t.Skip("need to figure out how to run this test w/out actually needing a real skill to test against")
 
 	resource.UnitTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: providerFactories,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: providerFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceInteractionModel,
@@ -21,6 +21,11 @@ func TestAccInteractionModel(t *testing.T) {
 }
 
 const testAccResourceInteractionModel = `
+
+provider "alexaskills" {
+  token = "foo"
+	vendor_id = "bar"
+}
 
 resource "alexaskills_skill_resource" "hello_world" {
 
