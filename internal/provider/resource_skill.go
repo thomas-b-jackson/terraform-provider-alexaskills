@@ -90,10 +90,27 @@ func resourceSkillsRead(ctx context.Context, d *schema.ResourceData, meta interf
 }
 
 func resourceSkillsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// use the meta value to retrieve your client from the provider configure method
-	// client := meta.(*apiClient)
 
-	return diag.Errorf("not implemented")
+	var diags diag.Diagnostics
+
+	skillID := d.Id()
+
+	manifest := ExpandSkillManifest(d.Get("manifest").([]interface{}))
+
+	smapiClient := meta.(*smapi_client.SMAPIClient)
+
+	err := smapiClient.UpdateSkill(skillID, *manifest)
+
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Unable to update requested skill",
+			Detail:   fmt.Sprintf("Unable to update requested skill, err: %s", err),
+		})
+		return diags
+	}
+
+	return diags
 }
 
 func resourceSkillsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

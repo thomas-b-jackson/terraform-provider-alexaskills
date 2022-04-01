@@ -20,14 +20,7 @@ type VendorSkills struct {
 }
 
 type CreateSkillResponse struct {
-	StatusCode int `json:"statusCode"`
-	Body       struct {
-		ID string `json:"skillId"`
-	} `json:"body"`
-}
-
-type DeleteSkillResponse struct {
-	StatusCode int `json:"statusCode"`
+	ID string `json:"skillId"`
 }
 
 type EnglishUSLocal struct {
@@ -68,6 +61,10 @@ type SkillManifest struct {
 	ManifestVersion       string                `json:"manifestVersion"`
 }
 
+type SkillManifestUpdateWrapper struct {
+	Manifest SkillManifest `json:"manifest"`
+}
+
 type SkillManifestWrapper struct {
 	VendorId string        `json:"vendorId"`
 	Manifest SkillManifest `json:"manifest"`
@@ -75,35 +72,34 @@ type SkillManifestWrapper struct {
 
 func (c *SMAPIClient) GetSkill(skillId string) (VendorSkills, error) {
 
-	body, err := c.Get(
+	smapiResponse, err := c.Get(
 		"/v1/skills?vendorId=" + c.vendorId + "&skillId=" + skillId)
 
 	var skills VendorSkills
 
 	if err != nil {
-		log.Printf("[DEBUG] skills list raw output:\n%s\n", body)
+		log.Printf("[DEBUG] skills list raw output:\n%+v\n", smapiResponse)
 		return skills, err
 	}
 
-	err = json.Unmarshal([]byte(body), &skills)
+	err = json.Unmarshal(smapiResponse.Body, &skills)
 
 	return skills, err
 }
 
 func (c SMAPIClient) GetSkillManifest(skillId string) (SkillManifest, error) {
 
-	body, err := c.Get(
+	smapiResponse, err := c.Get(
 		"/v1/skills/" + skillId + "/stages/development/manifest")
 
 	if err != nil {
-		log.Printf("[DEBUG] Error getting skill manifest for :%s\n",
-			skillId)
+		log.Printf("[DEBUG] Error getting skill manifest for :%s\n", skillId)
 		return SkillManifest{}, err
 	}
 
 	var wrappedSkill SkillManifestWrapper
 
-	err = json.Unmarshal([]byte(body), &wrappedSkill)
+	err = json.Unmarshal(smapiResponse.Body, &wrappedSkill)
 
 	return wrappedSkill.Manifest, err
 }
@@ -123,58 +119,75 @@ func (c *SMAPIClient) CreateSkill(skillManifest SkillManifest) (string, error) {
 		return skillId, err
 	}
 
-	body, err := c.Post(
+	smapiResponse, err := c.Post(
 		"/v1/skills",
 		manifestBytes)
 
 	if err != nil {
-		log.Printf("[DEBUG] skills create raw output:\n%s\n", body)
+		log.Printf("[DEBUG] skills create raw output:\n%+v\n", smapiResponse)
 		return skillId, err
 	}
 
 	// load the response into a struct
-	err = json.Unmarshal([]byte(body), &createSkillResponse)
+	err = json.Unmarshal(smapiResponse.Body, &createSkillResponse)
 
 	if err != nil {
 		// un-marshall failed
-		log.Printf("[DEBUG] skills create raw output:\n%s\n", body)
-		log.Printf("[DEBUG] skills create output:\n%+v\n", createSkillResponse)
+		log.Printf("[DEBUG] skills create unmarshal failure ... raw output:\n%+v\n", smapiResponse)
 		return skillId, err
 	}
 
-	if createSkillResponse.StatusCode != 202 {
+	if smapiResponse.Status != 202 {
 		// smapi returned an unhappy response code
-		log.Printf("[DEBUG] skills manifest:\n%s\n", manifestBytes)
-		return skillId, fmt.Errorf("skill creation command failed with status code: %d, and output:\n%s", createSkillResponse.StatusCode, body)
+		return skillId, fmt.Errorf("skill creation failed with response:\n%+v", smapiResponse)
 	}
 
-	skillId = createSkillResponse.Body.ID
+	skillId = createSkillResponse.ID
 
 	return skillId, err
 }
 
+func (c *SMAPIClient) UpdateSkill(skillId string, skillManifest SkillManifest) error {
+
+	manifestBytes, err := json.Marshal(SkillManifestUpdateWrapper{skillManifest})
+
+	if err != nil {
+		log.Printf("[DEBUG] skills update marshalled manifest:\n%s\n", manifestBytes)
+		log.Printf("[DEBUG] skills update manifest:\n%+v\n", skillManifest)
+		return err
+	}
+
+	smapiResponse, err := c.Put(
+		"/v1/skills/"+skillId+"/stages/development/manifest",
+		manifestBytes)
+
+	if err != nil {
+		log.Printf("[DEBUG] skills update raw output:\n%+v\n", smapiResponse)
+		return err
+	}
+
+	if smapiResponse.Status != 202 {
+		// smapi returned an unhappy response code
+		log.Printf("[DEBUG] skills update manifest:\n%s\n", manifestBytes)
+		return fmt.Errorf("skill update failed with response code: %d, and body:\n%s", smapiResponse.Status, smapiResponse.Body)
+	}
+
+	return err
+}
+
 func (c *SMAPIClient) DeleteSkill(skillId string) error {
 
-	body, err := c.Delete(
+	smapiResponse, err := c.Delete(
 		"/v1/skills/" + skillId)
 
 	if err != nil {
-		log.Printf("[DEBUG] skills delete raw output:\n%s\n", body)
+		log.Printf("[DEBUG] skills delete raw output:\n%+v\n", smapiResponse)
 		return err
 	}
 
-	var deleteSkillResponse DeleteSkillResponse
-
-	err = json.Unmarshal([]byte(body), &deleteSkillResponse)
-
-	if err != nil {
-		log.Printf("[DEBUG] skills deletion unsuccessful. raw output:\n%s\n", body)
-		return err
-	}
-
-	if deleteSkillResponse.StatusCode != 204 {
+	if smapiResponse.Status != 204 {
 		// smapi returned an unhappy response code
-		return fmt.Errorf("skill deletion command failed with output:\n%s", body)
+		return fmt.Errorf("skill deletion command failed with output:\n%+v", smapiResponse)
 	}
 
 	return err

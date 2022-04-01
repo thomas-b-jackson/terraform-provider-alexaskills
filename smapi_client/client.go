@@ -7,13 +7,18 @@ import (
 	"net/http"
 )
 
-type Doer func(token string, verb string, url string, payload []byte) (string, error)
+type SMAPIResponse struct {
+	Status int
+	Body   []byte
+}
 
-func do(token string, verb string, url string, payload []byte) (string, error) {
+type Doer func(token string, verb string, url string, payload []byte) (SMAPIResponse, error)
+
+func do(token string, verb string, url string, payload []byte) (SMAPIResponse, error) {
 
 	const baseUrl = "https://api.amazonalexa.com"
 
-	log.Printf("[DEBUG] token used: %s\n", token)
+	// log.Printf("[DEBUG] token used: %s\n", token)
 
 	hc := &http.Client{}
 
@@ -45,10 +50,9 @@ func do(token string, verb string, url string, payload []byte) (string, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	body := string(bytes)
-	// fmt.Println(body)
+	// body := string(bytes)
 
-	return body, err
+	return SMAPIResponse{response.StatusCode, bytes}, err
 }
 
 type SMAPIClient struct {
@@ -62,18 +66,18 @@ func NewClient(token string, vendorId string) (*SMAPIClient, error) {
 	return &c, nil
 }
 
-func (c *SMAPIClient) Get(url string) (string, error) {
+func (c *SMAPIClient) Get(url string) (SMAPIResponse, error) {
 	return c.do(c.token, "GET", url, nil)
 }
 
-func (c *SMAPIClient) Post(url string, payload []byte) (string, error) {
+func (c *SMAPIClient) Post(url string, payload []byte) (SMAPIResponse, error) {
 	return c.do(c.token, "POST", url, payload)
 }
 
-func (c *SMAPIClient) Put(url string, payload []byte) (string, error) {
+func (c *SMAPIClient) Put(url string, payload []byte) (SMAPIResponse, error) {
 	return c.do(c.token, "PUT", url, payload)
 }
 
-func (c *SMAPIClient) Delete(url string) (string, error) {
+func (c *SMAPIClient) Delete(url string) (SMAPIResponse, error) {
 	return c.do(c.token, "DELETE", url, nil)
 }

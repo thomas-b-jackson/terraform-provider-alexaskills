@@ -56,17 +56,17 @@ const ModelBuildTimeoutSec = 30
 
 func (c *SMAPIClient) GetInteractionModel(skillId string) (InteractionModelObj, error) {
 
-	body, err := c.Get(
+	smapiResponse, err := c.Get(
 		"/v1/skills/" + skillId + "/stages/development/interactionModel/locales/en-US")
 
 	var model InteractionModelObj
 
 	if err != nil {
-		log.Printf("[DEBUG] get skill model raw output:\n%s\n", body)
+		log.Printf("[DEBUG] get skill model raw output:\n%+v\n", smapiResponse)
 		return model, err
 	}
 
-	err = json.Unmarshal([]byte(body), &model)
+	err = json.Unmarshal(smapiResponse.Body, &model)
 
 	return model, err
 }
@@ -84,12 +84,12 @@ func (c *SMAPIClient) UpdateInteractionModel(skillId string, model InteractionMo
 		return err
 	}
 
-	body, err := c.Put(
+	smapiResponse, err := c.Put(
 		"/v1/skills/"+skillId+"/stages/development/interactionModel/locales/en-US",
 		modelBytes)
 
 	if err != nil {
-		log.Printf("[DEBUG] interaction model update raw output:\n%s\n", body)
+		log.Printf("[DEBUG] interaction model update raw output:\n%+v\n", smapiResponse)
 		log.Printf("[DEBUG] interaction model update marshalled bytes:\n%s\n", modelBytes)
 		return err
 	}
@@ -97,17 +97,16 @@ func (c *SMAPIClient) UpdateInteractionModel(skillId string, model InteractionMo
 	var updateModelResponse UpdateModelResponse
 
 	// load the response into a struct
-	err = json.Unmarshal([]byte(body), &updateModelResponse)
+	err = json.Unmarshal(smapiResponse.Body, &updateModelResponse)
 
 	if err != nil {
 		// un-marshall failed
-		log.Printf("[DEBUG] interaction model update raw output:\n%s\n", body)
-		log.Printf("[DEBUG] interaction model update output:\n%+v\n", updateModelResponse)
+		log.Printf("[DEBUG] interaction model update raw output:\n%+v\n", smapiResponse)
 		return err
 	}
 
-	if updateModelResponse.StatusCode != 202 {
-		return fmt.Errorf("ask interaction model update command failed with output:\n%s", body)
+	if smapiResponse.Status != 202 {
+		return fmt.Errorf("ask interaction model update command failed with output:\n%+v", smapiResponse)
 	}
 
 	// Wait (up to a threshold) until the model can be read back out.
