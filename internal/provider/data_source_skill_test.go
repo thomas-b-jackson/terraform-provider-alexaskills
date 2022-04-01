@@ -28,8 +28,7 @@ func TestAccDataSourceSkill(t *testing.T) {
 const testAccDataSourceSkill = `
 
 provider "alexaskills" {
-  token = "foo"
-	vendor_id = "bar"
+	vendor_id = "M3VEWOQC3LNOOF"
 }
 
 resource "alexaskills_skill_resource" "foo" {

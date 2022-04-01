@@ -6,6 +6,7 @@ Provider for building alexa skills via terraform
 
 -	[Terraform](https://www.terraform.io/downloads.html) >= 0.13.x
 -	[Go](https://golang.org/doc/install) >= 1.15
+- [ask cli]
 
 ## Building The Provider
 
@@ -34,6 +35,14 @@ Then commit the changes to `go.mod` and `go.sum`.
 See [./examples](./examples)
 
 ## Developing the Provider
+
+Create a token as:
+
+`ask util generate-lwa-tokens --no-browser`
+
+Save the token to an environment variable as:
+
+`export SMAPI_TOKEN=<token>`
 
 If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (per [Requirements](#requirements) above).
 

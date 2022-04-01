@@ -69,6 +69,7 @@ type SkillManifest struct {
 }
 
 type SkillManifestWrapper struct {
+	VendorId string        `json:"vendorId"`
 	Manifest SkillManifest `json:"manifest"`
 }
 
@@ -109,7 +110,7 @@ func (c SMAPIClient) GetSkillManifest(skillId string) (SkillManifest, error) {
 
 func (c *SMAPIClient) CreateSkill(skillManifest SkillManifest) (string, error) {
 
-	manifestComplete := SkillManifestWrapper{skillManifest}
+	manifestComplete := SkillManifestWrapper{c.vendorId, skillManifest}
 
 	manifestBytes, err := json.Marshal(manifestComplete)
 
@@ -142,8 +143,9 @@ func (c *SMAPIClient) CreateSkill(skillManifest SkillManifest) (string, error) {
 	}
 
 	if createSkillResponse.StatusCode != 202 {
-		// ask cli returned an unhappy response code
-		return skillId, fmt.Errorf("ask skill creation command failed with output:\n%s", body)
+		// smapi returned an unhappy response code
+		log.Printf("[DEBUG] skills manifest:\n%s\n", manifestBytes)
+		return skillId, fmt.Errorf("skill creation command failed with status code: %d, and output:\n%s", createSkillResponse.StatusCode, body)
 	}
 
 	skillId = createSkillResponse.Body.ID
@@ -171,8 +173,8 @@ func (c *SMAPIClient) DeleteSkill(skillId string) error {
 	}
 
 	if deleteSkillResponse.StatusCode != 204 {
-		// ask cli returned an unhappy response code
-		return fmt.Errorf("ask skill deletion command failed with output:\n%s", body)
+		// smapi returned an unhappy response code
+		return fmt.Errorf("skill deletion command failed with output:\n%s", body)
 	}
 
 	return err

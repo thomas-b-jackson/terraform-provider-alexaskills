@@ -23,8 +23,7 @@ func TestAccInteractionModel(t *testing.T) {
 const testAccResourceInteractionModel = `
 
 provider "alexaskills" {
-  token = "foo"
-	vendor_id = "bar"
+	vendor_id = "M3VEWOQC3LNOOF"
 }
 
 resource "alexaskills_skill_resource" "hello_world" {

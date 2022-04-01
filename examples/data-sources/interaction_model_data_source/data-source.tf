@@ -1,17 +1,18 @@
 terraform {
   required_providers {
     alexaskills = {
-      version = "0.1"
+      version = "0.2"
       source  = "scg.com/va/alexaskills"
     }
   }
 }
 
 provider "alexaskills" {
+  vendor_id = "M3VEWOQC3LNOOF"
 }
 
 data "alexaskills_interaction_model_resource" "va_demo" {
-  skill_id = "amzn1.ask.skill.d5a0762e-bfed-4800-9d2a-bebbc748674c"
+  skill_id = "amzn1.ask.skill.0c29632d-efd8-4d0c-a3b8-a7988c097a74"
 }
 
 output "model_demo" {

@@ -11,7 +11,9 @@ type Doer func(token string, verb string, url string, payload []byte) (string, e
 
 func do(token string, verb string, url string, payload []byte) (string, error) {
 
-	const baseUrl = "http://api.amazonalexa.com/"
+	const baseUrl = "https://api.amazonalexa.com"
+
+	log.Printf("[DEBUG] token used: %s\n", token)
 
 	hc := &http.Client{}
 

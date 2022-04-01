@@ -16,6 +16,7 @@ website/node_modules
 *.backup
 ./*.tfstate
 .terraform/
+.terraform.lock.hcl
 *.log
 *.bak
 *~
@@ -33,3 +34,5 @@ website/vendor
 
 # Keep windows files with windows line endings
 *.winfile eol=crlf
+
+terraform-provider-alexaskills
