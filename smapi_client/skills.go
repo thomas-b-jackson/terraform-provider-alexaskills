@@ -139,7 +139,7 @@ func (c *SMAPIClient) CreateSkill(skillManifest SkillManifest) (string, error) {
 
 	if smapiResponse.Status != 202 {
 		// smapi returned an unhappy response code
-		return skillId, fmt.Errorf("skill creation failed with response:\n%+v", smapiResponse)
+		return skillId, fmt.Errorf("skill creation failed with response code: %d and message: \n%s\n", smapiResponse.Status, smapiResponse.Body)
 	}
 
 	skillId = createSkillResponse.ID
@@ -187,7 +187,7 @@ func (c *SMAPIClient) DeleteSkill(skillId string) error {
 
 	if smapiResponse.Status != 204 {
 		// smapi returned an unhappy response code
-		return fmt.Errorf("skill deletion command failed with output:\n%+v", smapiResponse)
+		return fmt.Errorf("skill deletion command failed with output:\n%s\n", smapiResponse)
 	}
 
 	return err

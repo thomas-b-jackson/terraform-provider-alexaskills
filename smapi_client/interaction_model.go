@@ -106,7 +106,7 @@ func (c *SMAPIClient) UpdateInteractionModel(skillId string, model InteractionMo
 	}
 
 	if smapiResponse.Status != 202 {
-		return fmt.Errorf("ask interaction model update command failed with output:\n%+v", smapiResponse)
+		return fmt.Errorf("interaction model create/update failed with response code: %d and message: \n%s\n", smapiResponse.Status, smapiResponse.Body)
 	}
 
 	// Wait (up to a threshold) until the model can be read back out.

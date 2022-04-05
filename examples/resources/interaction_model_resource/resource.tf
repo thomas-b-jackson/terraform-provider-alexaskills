@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     alexaskills = {
-      version = "0.2"
+      version = "0.2-beta1"
       source  = "scg.com/va/alexaskills"
     }
   }
@@ -12,7 +12,7 @@ provider "alexaskills" {
 }
 
 data "alexaskills_skill_resource" "hello_world" {
-  id = "amzn1.ask.skill.ca1840dd-d53f-4374-8a34-d8d2e62f167d"
+  id = "amzn1.ask.skill.03b64569-122c-409d-b17e-ed7511133119"
 }
 
 resource "alexaskills_interaction_model_resource" "hello_world" {

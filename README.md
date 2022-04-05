@@ -40,7 +40,9 @@ Create a token as:
 
 `ask util generate-lwa-tokens --no-browser`
 
-Save the token to an environment variable as:
+The ask utility will output a json-encoded string to stdout containing `access_token` and `refresh_token` fields.
+
+Save the `access_token` to an environment variable as:
 
 `export SMAPI_TOKEN=<token>`
 
