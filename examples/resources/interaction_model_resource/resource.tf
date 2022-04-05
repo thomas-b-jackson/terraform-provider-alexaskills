@@ -1,78 +1,37 @@
 terraform {
   required_providers {
     alexaskills = {
-      version = "0.1"
+      version = "0.2-beta1"
       source  = "scg.com/va/alexaskills"
     }
-
-    aws = {}
   }
 }
 
 provider "alexaskills" {
+  vendor_id = "M3VEWOQC3LNOOF"
 }
 
-provider "aws" {
-  region = "us-west-2"
-}
-
-# create a bot/intent/slot to use with model example
-module "bot" {
-  source = "./lex_bot"
-}
-
-resource "alexaskills_skill_resource" "hello_world" {
-
-  manifest {
-    manifest_version = "1.0"
-
-    publishing_information {
-      locales {
-        en_us {
-          summary         = "Sample Short Description"
-          example_phrases = ["help my gas is leaking", 
-                            "pilot light is out", 
-                            "can't remember my password"]
-          name            = "my socal gas"
-          description     = "Sample Full Description"
-        }
-      }
-
-      is_available_worldwide = true
-      testing_instructions   = "Sample Testing Instructions."
-      category               = "KNOWLEDGE_AND_TRIVIA"
-      distribution_countries = []
-    }
-
-    apis {
-      custom {
-        endpoint {
-          # TODO: generalize. currently using the lambda for the QnABot stack in the Logic AWS account
-          uri = "arn:aws:lambda:us-west-2:580753938011:function:serverlessrepo-alexa-skil-alexaskillskitnodejsfact-pymFhOcUAodv"
-        }
-        interfaces = []
-      }
-    }
-  }
+data "alexaskills_skill_resource" "hello_world" {
+  id = "amzn1.ask.skill.03b64569-122c-409d-b17e-ed7511133119"
 }
 
 resource "alexaskills_interaction_model_resource" "hello_world" {
 
-  # need the intents from the bot
-  depends_on = [module.bot,
-                resource.alexaskills_skill_resource.hello_world]
-
   # add interaction model to the skill
-  skill_id = resource.alexaskills_skill_resource.hello_world.id
+  skill_id = data.alexaskills_skill_resource.hello_world.id
 
   interaction_model {
 
     language_model {
-      invocation_name = "my socal gas"
+      invocation_name = "hello my world"
 
       types {
         name = "FAQ"
-        values = [for q in module.bot.bot_questions : q.value]
+        values = [
+          "alexa open hello world", 
+          "hello world", 
+          "help",
+          "help me"]
       }
 
       intents {

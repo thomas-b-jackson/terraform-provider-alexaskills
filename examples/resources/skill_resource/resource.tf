@@ -1,13 +1,14 @@
 terraform {
   required_providers {
     alexaskills = {
-      version = "0.1"
+      version = "0.2-beta1"
       source  = "scg.com/va/alexaskills"
     }
   }
 }
 
 provider "alexaskills" {
+  vendor_id = "M3VEWOQC3LNOOF"
 }
 
 resource "alexaskills_skill_resource" "hello_world" {
@@ -34,7 +35,7 @@ resource "alexaskills_skill_resource" "hello_world" {
     apis {
       custom {
         endpoint {
-          uri = "arn:aws:lambda:us-west-2:580753938011:function:serverlessrepo-alexa-skil-alexaskillskitnodejsfact-pymFhOcUAodv"
+          uri = "arn:aws:lambda:us-west-2:111365482541:function:QnABot-FulfillmentLambda-JMeqq75oakh2:live"
         }
         interfaces = []
       }

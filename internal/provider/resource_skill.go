@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/scg/va/ask_client"
+	"github.com/scg/va/smapi_client"
 )
 
 func resourceSkills() *schema.Resource {
@@ -36,9 +36,9 @@ func resourceSkillsCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	manifest := ExpandSkillManifest(d.Get("manifest").([]interface{}))
 
-	askClient := meta.(*ask_client.AskClient)
+	smapiClient := meta.(*smapi_client.SMAPIClient)
 
-	skillId, err := askClient.CreateSkill(*manifest)
+	skillId, err := smapiClient.CreateSkill(*manifest)
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -60,9 +60,9 @@ func resourceSkillsRead(ctx context.Context, d *schema.ResourceData, meta interf
 
 	skillID := d.Id()
 
-	askClient := meta.(*ask_client.AskClient)
+	smapiClient := meta.(*smapi_client.SMAPIClient)
 
-	skillManifest, err := askClient.GetSkillManifest(skillID)
+	skillManifest, err := smapiClient.GetSkillManifest(skillID)
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -90,22 +90,39 @@ func resourceSkillsRead(ctx context.Context, d *schema.ResourceData, meta interf
 }
 
 func resourceSkillsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// use the meta value to retrieve your client from the provider configure method
-	// client := meta.(*apiClient)
 
-	return diag.Errorf("not implemented")
+	var diags diag.Diagnostics
+
+	skillID := d.Id()
+
+	manifest := ExpandSkillManifest(d.Get("manifest").([]interface{}))
+
+	smapiClient := meta.(*smapi_client.SMAPIClient)
+
+	err := smapiClient.UpdateSkill(skillID, *manifest)
+
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Unable to update requested skill",
+			Detail:   fmt.Sprintf("Unable to update requested skill, err: %s", err),
+		})
+		return diags
+	}
+
+	return diags
 }
 
 func resourceSkillsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	askClient := meta.(*ask_client.AskClient)
+	smapiClient := meta.(*smapi_client.SMAPIClient)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
 	skillID := d.Id()
 
-	err := askClient.DeleteSkill(skillID)
+	err := smapiClient.DeleteSkill(skillID)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
