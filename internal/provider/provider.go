@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,21 +25,27 @@ func Provider(version string) *schema.Provider {
 			},
 			"lwa_client_id": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("LWA_CLIENT_ID", nil),
 			},
 			"lwa_client_secret": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("LWA_CLIENT_SECRET", nil),
 			},
 			"lwa_refresh_token": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("LWA_REFRESH_TOKEN", nil),
+			},
+			"lwa_token": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				DefaultFunc: schema.EnvDefaultFunc("LWA_ACCESS_TOKEN", nil),
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -58,23 +65,31 @@ func configure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.D
 	var diags diag.Diagnostics
 
 	vendorId := d.Get("vendor_id").(string)
+	lwa_access_token := d.Get("lwa_token").(string)
 
-	lwa_client_id := d.Get("lwa_client_id").(string)
-	lwa_client_secret := d.Get("lwa_client_secret").(string)
-	lwa_refresh_token := d.Get("lwa_refresh_token").(string)
+	log.Printf("[DEBUG] token is %s", lwa_access_token)
 
-	// create an lwa access token
-	lwa_access_token, err := smapi_client.GetLwaToken(lwa_client_id,
-		lwa_client_secret,
-		lwa_refresh_token)
+	if lwa_access_token == "" {
 
-	if err != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Unable to create LWA access token",
-			Detail:   fmt.Sprintf("Unable to create LWA access token, err: %s", err),
-		})
-		return nil, diags
+		lwa_client_id := d.Get("lwa_client_id").(string)
+		lwa_client_secret := d.Get("lwa_client_secret").(string)
+		lwa_refresh_token := d.Get("lwa_refresh_token").(string)
+
+		// create an lwa access token
+		generated_access_token, err := smapi_client.GetLwaToken(lwa_client_id,
+			lwa_client_secret,
+			lwa_refresh_token)
+
+		if err != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Unable to create LWA access token",
+				Detail:   fmt.Sprintf("Unable to create LWA access token, err: %s", err),
+			})
+			return nil, diags
+		}
+
+		lwa_access_token = generated_access_token
 	}
 
 	smapiClient, err := smapi_client.NewClient(lwa_access_token, vendorId)

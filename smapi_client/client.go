@@ -3,6 +3,7 @@ package smapi_client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -14,7 +15,7 @@ type SMAPIResponse struct {
 }
 
 type LWATokenResponse struct {
-	RefreshToken string `json:"refresh_token"`
+	AccessToken string `json:"access_token"`
 }
 
 type Doer func(token string, verb string, url string, payload []byte) (SMAPIResponse, error)
@@ -55,7 +56,6 @@ func do(token string, verb string, url string, payload []byte) (SMAPIResponse, e
 	if err != nil {
 		log.Fatal(err)
 	}
-	// body := string(bytes)
 
 	return SMAPIResponse{response.StatusCode, bytes}, err
 }
@@ -101,8 +101,7 @@ func GetLwaToken(
 	request, err := http.NewRequest("POST", tokenUrl, payloadReader)
 
 	if err != nil {
-		log.Printf("[DEBUG] Error creating request for refresh token %s\n", err)
-		log.Fatal(err)
+		return "", fmt.Errorf("error creating request for refresh token. error: %s", err)
 	}
 
 	query := request.URL.Query()
@@ -114,28 +113,23 @@ func GetLwaToken(
 
 	response, err := hc.Do(request)
 	if err != nil {
-		log.Printf("[DEBUG] Error retrieving refresh token %s\n", err)
-		log.Fatal(err)
+		return "", fmt.Errorf("error retrieving refresh token. error: %v", err)
 	}
 
 	defer response.Body.Close()
 
 	bytes, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Printf("[DEBUG] Error reading bytes for refresh token %s\n", err)
-		log.Fatal(err)
+		return "", fmt.Errorf("error reading bytes for refresh token. error: %s", err)
 	}
 
 	if response.StatusCode != 200 {
-		log.Printf("[DEBUG] Error retrieving refresh token %s\n", err)
-		log.Fatal(err)
+		return "", fmt.Errorf("error retrieving refresh token. Status code: %d, response body: %s", response.StatusCode, string(bytes))
 	}
 
 	var lwaTokenResponse LWATokenResponse
 
 	err = json.Unmarshal(bytes, &lwaTokenResponse)
 
-	log.Printf("[DEBUG] access token: %s\n", lwaTokenResponse.RefreshToken)
-
-	return lwaTokenResponse.RefreshToken, err
+	return lwaTokenResponse.AccessToken, err
 }
