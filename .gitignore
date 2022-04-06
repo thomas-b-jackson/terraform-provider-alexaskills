@@ -17,6 +17,7 @@ website/node_modules
 ./*.tfstate
 .terraform/
 .terraform.lock.hcl
+examples/resources/interaction_model_resource/.terraform.lock.hcl
 *.log
 *.bak
 *~
@@ -36,3 +37,5 @@ website/vendor
 *.winfile eol=crlf
 
 terraform-provider-alexaskills
+
+.env
