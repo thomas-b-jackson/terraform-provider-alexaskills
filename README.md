@@ -44,7 +44,7 @@ The ask utility will output a json-encoded string to stdout containing `access_t
 
 Save the `access_token` to an environment variable as:
 
-`export SMAPI_TOKEN=<token>`
+`export LWA_ACCESS_TOKEN=<token>`
 
 If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (per [Requirements](#requirements) above).
 
