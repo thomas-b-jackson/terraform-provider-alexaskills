@@ -42,6 +42,8 @@ func dataSourceSkillsRead(ctx context.Context, d *schema.ResourceData, meta inte
 
 	skillManifest, err := smapiClient.GetSkillManifest(skillID)
 
+	// log.Printf("[DEBUG] manifest:\n%+v\n", skillManifest)
+
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -77,6 +79,12 @@ var skillSchemaMap = map[string]*schema.Schema{
 		Required: true,
 		MaxItems: 1,
 		Elem:     lexPubInfoResource,
+	},
+	"privacy_and_compliance": {
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem:     lexPrivacyComplianceResource,
 	},
 	"apis": {
 		Type:     schema.TypeList,
@@ -119,6 +127,14 @@ var lexPubInfoResource = &schema.Resource{
 									Type:     schema.TypeString,
 									Required: true,
 								},
+								"small_icon_uri": {
+									Type:     schema.TypeString,
+									Required: true,
+								},
+								"large_icon_uri": {
+									Type:     schema.TypeString,
+									Required: true,
+								},
 							},
 						},
 					},
@@ -143,6 +159,31 @@ var lexPubInfoResource = &schema.Resource{
 			Elem: &schema.Schema{
 				Type: schema.TypeString,
 			},
+		},
+	},
+}
+
+var lexPrivacyComplianceResource = &schema.Resource{
+	Schema: map[string]*schema.Schema{
+		"allows_purchases": {
+			Type:     schema.TypeBool,
+			Optional: true,
+		},
+		"uses_personal_info": {
+			Type:     schema.TypeBool,
+			Optional: true,
+		},
+		"is_child_directed": {
+			Type:     schema.TypeBool,
+			Optional: true,
+		},
+		"is_export_compliant": {
+			Type:     schema.TypeBool,
+			Optional: true,
+		},
+		"contains_ads": {
+			Type:     schema.TypeBool,
+			Optional: true,
 		},
 	},
 }
@@ -187,6 +228,7 @@ func flattenSkillManifest(skillManifest smapi_client.SkillManifest) (flattened [
 		{
 			"manifest_version":       skillManifest.ManifestVersion,
 			"publishing_information": flattenPublishingInformation(skillManifest.PublishingInformation),
+			"privacy_and_compliance": flattenPrivacyAndCompliance(skillManifest.PrivacyAndCompliance),
 			"apis":                   flattenApis(skillManifest.Apis),
 		},
 	}
@@ -209,6 +251,21 @@ func flattenPublishingInformation(publishingInformation smapi_client.PublishingI
 	return
 }
 
+func flattenPrivacyAndCompliance(privacyCompliance smapi_client.PrivacyAndCompliance) (flattened []map[string]interface{}) {
+
+	flattened = []map[string]interface{}{
+		{
+			"allows_purchases":    privacyCompliance.AllowsPurchases,
+			"uses_personal_info":  privacyCompliance.UsesPersonalInfo,
+			"is_child_directed":   privacyCompliance.IsChildDirected,
+			"is_export_compliant": privacyCompliance.IsExportCompliant,
+			"contains_ads":        privacyCompliance.ContainsAds,
+		},
+	}
+
+	return
+}
+
 func flattenLocales(locales smapi_client.Locales) (flattened []map[string]interface{}) {
 
 	flattened = []map[string]interface{}{{
@@ -216,6 +273,8 @@ func flattenLocales(locales smapi_client.Locales) (flattened []map[string]interf
 			"name":            locales.EnglishUS.Name,
 			"summary":         locales.EnglishUS.Summary,
 			"description":     locales.EnglishUS.Description,
+			"small_icon_uri":  locales.EnglishUS.SmallIconUri,
+			"large_icon_uri":  locales.EnglishUS.LargeIconUri,
 			"example_phrases": flattenExamplePhrases(locales.EnglishUS.ExamplePhrases),
 		}},
 	}}
@@ -256,6 +315,10 @@ func ExpandSkillManifest(in []interface{}) *smapi_client.SkillManifest {
 		manifest.PublishingInformation = *ExpandPublishingInformation(v)
 	}
 
+	if v, ok := m["privacy_and_compliance"].([]interface{}); ok {
+		manifest.PrivacyAndCompliance = *ExpandPrivacyAndCompliance(v)
+	}
+
 	if v, ok := m["apis"].([]interface{}); ok {
 		manifest.Apis = *ExpandApis(v)
 	}
@@ -290,6 +353,35 @@ func ExpandPublishingInformation(in []interface{}) *smapi_client.PublishingInfor
 	}
 
 	return pubInfo
+}
+
+func ExpandPrivacyAndCompliance(in []interface{}) *smapi_client.PrivacyAndCompliance {
+
+	privacyAndCompliance := &smapi_client.PrivacyAndCompliance{}
+
+	m := in[0].(map[string]interface{})
+
+	if v, ok := m["allows_purchases"].(bool); ok {
+		privacyAndCompliance.AllowsPurchases = v
+	}
+
+	if v, ok := m["uses_personal_info"].(bool); ok {
+		privacyAndCompliance.UsesPersonalInfo = v
+	}
+
+	if v, ok := m["is_child_directed"].(bool); ok {
+		privacyAndCompliance.IsChildDirected = v
+	}
+
+	if v, ok := m["is_export_compliant"].(bool); ok {
+		privacyAndCompliance.IsExportCompliant = v
+	}
+
+	if v, ok := m["contains_ads"].(bool); ok {
+		privacyAndCompliance.ContainsAds = v
+	}
+
+	return privacyAndCompliance
 }
 
 func ExpandApis(in []interface{}) *smapi_client.Apis {
@@ -338,14 +430,14 @@ func expandLocales(in []interface{}) *smapi_client.Locales {
 	m := in[0].(map[string]interface{})
 
 	if v, ok := m["en_us"].([]interface{}); ok && len(v) > 0 {
-		enUS := explandEnUSLocal(v)
+		enUS := expandEnUSLocal(v)
 		locales.EnglishUS = *enUS
 	}
 
 	return locales
 }
 
-func explandEnUSLocal(in []interface{}) *smapi_client.EnglishUSLocal {
+func expandEnUSLocal(in []interface{}) *smapi_client.EnglishUSLocal {
 
 	enUS := &smapi_client.EnglishUSLocal{}
 
@@ -369,6 +461,14 @@ func explandEnUSLocal(in []interface{}) *smapi_client.EnglishUSLocal {
 		for idx, phrase := range v {
 			enUS.ExamplePhrases[idx] = phrase.(string)
 		}
+	}
+
+	if v, ok := m["small_icon_uri"].(string); ok {
+		enUS.SmallIconUri = v
+	}
+
+	if v, ok := m["large_icon_uri"].(string); ok {
+		enUS.LargeIconUri = v
 	}
 
 	return enUS
