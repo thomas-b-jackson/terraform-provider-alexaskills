@@ -28,6 +28,8 @@ type EnglishUSLocal struct {
 	ExamplePhrases []string `json:"examplePhrases"`
 	Name           string   `json:"name"`
 	Description    string   `json:"description"`
+	SmallIconUri   string   `json:"smallIconUri"`
+	LargeIconUri   string   `json:"largeIconUri"`
 }
 
 type Locales struct {
@@ -40,6 +42,14 @@ type PublishingInformation struct {
 	TestingInstructions   string   `json:"testingInstructions"`
 	Category              string   `json:"category"`
 	DistributionCountries []string `json:"distributionCountries"`
+}
+
+type PrivacyAndCompliance struct {
+	AllowsPurchases   bool `json:"allowsPurchases"`
+	UsesPersonalInfo  bool `json:"usesPersonalInfo"`
+	IsChildDirected   bool `json:"isChildDirected"`
+	IsExportCompliant bool `json:"isExportCompliant"`
+	ContainsAds       bool `json:"containsAds"`
 }
 
 type Endpoint struct {
@@ -59,6 +69,7 @@ type SkillManifest struct {
 	PublishingInformation PublishingInformation `json:"publishingInformation"`
 	Apis                  Apis                  `json:"apis"`
 	ManifestVersion       string                `json:"manifestVersion"`
+	PrivacyAndCompliance  PrivacyAndCompliance  `json:"privacyAndCompliance"`
 }
 
 type SkillManifestUpdateWrapper struct {
@@ -156,6 +167,8 @@ func (c *SMAPIClient) UpdateSkill(skillId string, skillManifest SkillManifest) e
 		log.Printf("[DEBUG] skills update manifest:\n%+v\n", skillManifest)
 		return err
 	}
+
+	// log.Printf("[DEBUG] skills marshalled manifest:\n%s\n", manifestBytes)
 
 	smapiResponse, err := c.Put(
 		"/v1/skills/"+skillId+"/stages/development/manifest",
