@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -67,7 +66,7 @@ func configure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.D
 	vendorId := d.Get("vendor_id").(string)
 	lwa_access_token := d.Get("lwa_token").(string)
 
-	log.Printf("[DEBUG] token is %s", lwa_access_token)
+	// log.Printf("[DEBUG] token is %s", lwa_access_token)
 
 	if lwa_access_token == "" {
 

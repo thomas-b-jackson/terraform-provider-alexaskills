@@ -7,7 +7,7 @@ import (
 
 func TestGetSkill(t *testing.T) {
 
-	f := func(token string, verb string, url string, payload []byte) (string, error) {
+	f := func(token string, verb string, url string, payload []byte) (SMAPIResponse, error) {
 
 		var vendorSkills = `{"Skills":
 		[{
@@ -22,7 +22,7 @@ func TestGetSkill(t *testing.T) {
 		}]
 		}`
 
-		return vendorSkills, nil
+		return SMAPIResponse{200, []byte(vendorSkills)}, nil
 	}
 
 	smapiClient, _ := NewTestClient(f)
@@ -44,30 +44,13 @@ func TestGetSkill(t *testing.T) {
 
 func TestCreateSkill(t *testing.T) {
 
-	f := func(token string, verb string, url string, payload []byte) (string, error) {
+	f := func(token string, verb string, url string, payload []byte) (SMAPIResponse, error) {
 
 		var createSkillResponse = `{
-			"body": {
-			  "skillId": "amzn1.ask.skill.1572d73d-0c2e-49d7-9a6b-c19dcb4383c0"
-			},
-			"headers": [
-			  {
-				"key": "content-type",
-				"value": "application/json"
-			  },
-			  {
-				"key": "content-length",
-				"value": "66"
-			  },
-			  {
-				"key": "connection",
-				"value": "close"
-			  }
-			],
-			"statusCode": 202
-		  }`
+			"skillId": "amzn1.ask.skill.1572d73d-0c2e-49d7-9a6b-c19dcb4383c0"
+		}`
 
-		return createSkillResponse, nil
+		return SMAPIResponse{202, []byte(createSkillResponse)}, nil
 	}
 
 	smapiClient, _ := NewTestClient(f)
@@ -111,7 +94,7 @@ func TestCreateSkill(t *testing.T) {
 	}
 
 	// unhappy-path
-	unhappy := func(name string, arg ...string) (string, error) {
+	unhappy := func(token string, verb string, url string, payload []byte) (SMAPIResponse, error) {
 
 		var createSkillResponse = `{
 			"headers": [
@@ -131,10 +114,10 @@ func TestCreateSkill(t *testing.T) {
 			"statusCode": 400
 		  }`
 
-		return createSkillResponse, nil
+		return SMAPIResponse{400, []byte(createSkillResponse)}, nil
 	}
 
-	smapiClient, _ = NewSMAPITestClient(unhappy)
+	smapiClient, _ = NewTestClient(unhappy)
 
 	_, err = smapiClient.CreateSkill(skillManifest)
 
@@ -146,7 +129,7 @@ func TestCreateSkill(t *testing.T) {
 
 func TestDeleteSkill(t *testing.T) {
 
-	f := func(name string, arg ...string) (string, error) {
+	f := func(token string, verb string, url string, payload []byte) (SMAPIResponse, error) {
 
 		var deleteSkillResponse = `{
 			"headers": [
@@ -166,10 +149,10 @@ func TestDeleteSkill(t *testing.T) {
 			"statusCode": 204
 		  }`
 
-		return deleteSkillResponse, nil
+		return SMAPIResponse{204, []byte(deleteSkillResponse)}, nil
 	}
 
-	smapiClient, _ := NewSMAPITestClient(f)
+	smapiClient, _ := NewTestClient(f)
 
 	err := smapiClient.DeleteSkill("some-skill-id")
 
@@ -178,7 +161,7 @@ func TestDeleteSkill(t *testing.T) {
 		t.Fail()
 	}
 
-	unhappy := func(name string, arg ...string) (string, error) {
+	unhappy := func(token string, verb string, url string, payload []byte) (SMAPIResponse, error) {
 
 		var deleteSkillResponse = `{
 			"headers": [
@@ -198,10 +181,10 @@ func TestDeleteSkill(t *testing.T) {
 			"statusCode": 500
 		  }`
 
-		return deleteSkillResponse, nil
+		return SMAPIResponse{500, []byte(deleteSkillResponse)}, nil
 	}
 
-	smapiClient, _ = NewSMAPITestClient(unhappy)
+	smapiClient, _ = NewTestClient(unhappy)
 
 	err = smapiClient.DeleteSkill("some-skill-id")
 

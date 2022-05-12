@@ -200,7 +200,7 @@ func (c *SMAPIClient) DeleteSkill(skillId string) error {
 
 	if smapiResponse.Status != 204 {
 		// smapi returned an unhappy response code
-		return fmt.Errorf("skill deletion command failed with output:\n%s\n", smapiResponse)
+		return fmt.Errorf("skill deletion command failed with status: %d, and output:\n%s\n", smapiResponse.Status, smapiResponse.Body)
 	}
 
 	return err
