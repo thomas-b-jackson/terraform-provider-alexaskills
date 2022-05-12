@@ -7,7 +7,7 @@ import (
 
 func TestGetInteractionModel(t *testing.T) {
 
-	f := func(token string, verb string, url string, payload []byte) (string, error) {
+	f := func(token string, verb string, url string, payload []byte) (SMAPIResponse, error) {
 
 		var interactionModel = `{
 			"interactionModel": {
@@ -69,10 +69,10 @@ func TestGetInteractionModel(t *testing.T) {
 			"version": "3"
 		  }`
 
-		return interactionModel, nil
+		return SMAPIResponse{200, []byte(interactionModel)}, nil
 	}
 
-	smapiClient, _ := NewSMAPITestClient(f)
+	smapiClient, _ := NewTestClient(f)
 
 	model, err := smapiClient.GetInteractionModel("amzn1.ask.skill.70946374-9b01-4e18-b5e0-e0ec292a0f53")
 
@@ -91,7 +91,7 @@ func TestGetInteractionModel(t *testing.T) {
 
 func TestCreateInteractionModel(t *testing.T) {
 
-	happyPath := func(token string, verb string, url string, payload []byte) (string, error) {
+	happyPath := func(token string, verb string, url string, payload []byte) (SMAPIResponse, error) {
 
 		var createSkillResponse = `{
 			"body": {
@@ -114,10 +114,10 @@ func TestCreateInteractionModel(t *testing.T) {
 			"statusCode": 202
 		  }`
 
-		return createSkillResponse, nil
+		return SMAPIResponse{202, []byte(createSkillResponse)}, nil
 	}
 
-	smapiClient, _ := NewSMAPITestClient(happyPath)
+	smapiClient, _ := NewTestClient(happyPath)
 
 	interactionModel := InteractionModel{
 		LanguageModel: LanguageModel{
@@ -158,7 +158,7 @@ func TestCreateInteractionModel(t *testing.T) {
 	}
 
 	// unhappy-path
-	unhappy := func(name string, arg ...string) (string, error) {
+	unhappy := func(token string, verb string, url string, payload []byte) (SMAPIResponse, error) {
 
 		var createSkillResponse = `{
 			"headers": [
@@ -178,7 +178,7 @@ func TestCreateInteractionModel(t *testing.T) {
 			"statusCode": 400
 		  }`
 
-		return createSkillResponse, nil
+		return SMAPIResponse{400, []byte(createSkillResponse)}, nil
 	}
 
 	smapiClient, _ = NewTestClient(unhappy)

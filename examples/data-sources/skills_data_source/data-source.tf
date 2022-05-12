@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     alexaskills = {
-      version = "0.2.0-beta3"
-      source  = "scg.com/va/alexaskills"
+      version = "0.2.0-beta4"
+      source  = "localhost/va/alexaskills"
     }
   }
 }
